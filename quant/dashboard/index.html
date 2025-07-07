@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GEM PWA</title>
+  <style>
+    body {
+      margin: 0;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: sans-serif;
+    }
+
+    .zone5 {
+      border: 10px solid black;
+      padding: 10px;
+      display: inline-block;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 8px;
+      width: 80vw;
+      max-width: 400px;
+      aspect-ratio: 1;
+    }
+
+    .zone {
+      border: 5px solid black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      text-align: center;
+      padding: 10px;
+    }
+
+    /* Couleurs */
+    .green   { background: #b6f7b0; }
+    .red     { background: #ffb3b3; }
+    .neutral { background: #f0f0f0; }
+  </style>
+</head>
+<body>
+  <div class="zone5" id="zone5">
+    <div class="grid">
+      <div class="zone" id="zone1">...</div>
+      <div class="zone" id="zone2">...</div>
+      <div class="zone" id="zone3">...</div>
+      <div class="zone" id="zone4">...</div>
+    </div>
+  </div>
+
+  <script>
+    fetch("https://ymcnmo3pivutinzbjkum4cfhbu0ugpcu.lambda-url.eu-west-3.on.aws/")
+      .then(res => res.json())
+      .then(data => {
+        data.modules.forEach((module, i) => {
+          const zone = document.getElementById(`zone${i+1}`);
+          if (!zone) return;
+
+          const value = module.rateOfChange;
+          zone.textContent = `${module.label}\n${value.toFixed(1)}%`;
+
+          if (value > 5) zone.classList.add("green");
+          else if (value < 0) zone.classList.add("red");
+          else zone.classList.add("neutral");
+        });
+
+        // Couleur du cadre externe (zone5) = composite
+        const composite = data.composite?.rateOfChange;
+        const zone5 = document.getElementById("zone5");
+        if (zone5 && typeof composite === "number") {
+          if (composite > 5) zone5.classList.add("green");
+          else if (composite < 0) zone5.classList.add("red");
+          else zone5.classList.add("neutral");
+        }
+      })
+      .catch(err => {
+        console.error("Erreur API:", err);
+        document.getElementById("zone1").textContent = "Erreur";
+      });
+  </script>
+</body>
+</html>
